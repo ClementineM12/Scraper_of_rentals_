@@ -16,7 +16,7 @@ with open("app/params.json", "r") as file:
 
 # Variables
 URL = data['url']
-PARAMS = data['params_faliro']
+PARAMS = data['params']
 USER_AGENT = UserAgent().chrome
 TEST_DB = "test"
 TEST_COLLECTION = 'most_recent'
