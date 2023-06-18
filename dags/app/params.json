@@ -1,1 +1,18 @@
-# Parameters given for the scraping of the page..
+/* Add the necessary params */
+{
+    "url": "",
+    "headers": {
+        "User_agent": "",
+        "Accept-Language": "en-US,en;q=0.9,el;q=0.8",
+        "Referer": "https://www.google.com/",
+        "Accept-Encoding": "gzip, deflate, br"
+    },
+    "params": {
+        "item_type": "",
+        "transaction_name": "",
+        "geo_place_ids[]": "",
+        "publication_age": "",
+        "has_photos" : "",
+        "page": ""
+    }
+}
