@@ -4,56 +4,41 @@ from bs4 import BeautifulSoup
 import time
 from time import sleep
 import uuid
-# import socket
-# import socks
-# import stem.process
-# from stem import Signal
-# from stem.control import Controller
-from random import random
+from random import random, sample, randint
 from fake_useragent import UserAgent
+import json
+import os 
+
+# Get the absolute path of the current script
+script_path = os.path.abspath(__file__)
+script_dir = os.path.dirname(script_path)
+# Construct the path to params.json relative to scraper.py
+params_file = os.path.join(script_dir, "params.json")
+
+# Open and load the JSON file with the necessary parameters
+with open(params_file, "r") as file:
+    data = json.load(file)
+
 from app.scraper import *
+remote_webdriver = 'remote_chromedriver'
+user_agent = UserAgent().chrome
 
-# SOCKS_PORT=7000
-
-# tor_process = stem.process.launch_tor_with_config(
-#     config = {
-#         'SocksPort': str(SOCKS_PORT),
-#     },
-# )
-
-# socks.setdefaultproxy(proxy_type=socks.PROXY_TYPE_SOCKS5,
-#                       addr="127.0.0,1", #theres a ',' change it to '.' -- linkedin was being glitchy
-#                       port=SOCKS_PORT)
-# socket.socket = socks.socksocket
-
-
-def configure_options() -> Options:
-    """
-    Creates a new Options object from selenium.webdriver.chrome.options to store the ChromeDriver options.
-    "--headless": Runs Chrome in headless mode, which means it runs without a graphical user interface.
-    "--disable-gpu": Disables GPU acceleration in Chrome.
-    "--no-sandbox": Adds the sandbox argument to Chrome, which provides additional security measures.
-    "--disable-dev-shm-usage": Disables the usage of /dev/shm shared memory space. This is typically necessary to prevent Chrome from crashing when rendering large pages.
-    "user-agent={user_agent}": Sets the user-agent header of the HTTP requests sent by Chrome to the specified user_agent value generated earlier.
-    """
-
-    user_agent = UserAgent().chrome
-
+def configure_options(user_agent) -> Options:
     chrome_options = Options()
     chrome_options.add_argument("--headless")  # Run Chrome in headless mode
     chrome_options.add_argument("--disable-gpu")  # Disable GPU acceleration
     chrome_options.add_argument("--no-sandbox")  # Add the sandbox argument
-    chrome_options.add_argument("--disable-dev-shm-usage")
     chrome_options.add_argument("--lang=el")
-    chrome_options.add_argument('referer=https://www.google.com')
+    chrome_options.add_argument("--disable-dev-shm-usage")
+    chrome_options.add_argument('--referer=https://www.google.com')
     chrome_options.add_argument(f'user-agent={user_agent}')
-    """
-    By default, Docker runs a container with a /dev/shm shared memory space 64MB. This is typically too small for Chrome and will cause Chrome to crash when rendering large pages. 
-    To fix, run the container with docker run --shm-size=1gb to increase the size of /dev/shm. Since Chrome 65, this is no longer necessary. Instead, launch the browser with the --disable-dev-shm-usage flag.
-    According to that, another idea would be to try using --shm-size=1gb when running the container if you really want to use /dev/shm.
-    """
     return chrome_options
-
+"""
+By default, Docker runs a container with a /dev/shm shared memory space 64MB. This is typically too small for Chrome and will cause Chrome to crash when rendering large pages. 
+To fix, run the container with docker run --shm-size=1gb to increase the size of /dev/shm. Since Chrome 65, this is no longer necessary. Instead, launch the browser with the --disable-dev-shm-usage flag.
+According to that, another idea would be to try using --shm-size=1gb when running the container if you really want to use /dev/shm.
+"""
+headers = data['headers']
 def random_agent() -> dict:
     """
     Returns a dictionary with a single key-value pair where the key is "User-Agent" and the value is a randomly generated user agent string.
@@ -65,14 +50,21 @@ def scrape_data_by_adv(hrefs) -> dict:
     The scrape_data_by_adv function performs web scraping on a list of hrefs using a remote ChromeDriver. 
     It extracts rental data from each URL and stores it in a dictionary called inner_dict. The function returns the inner_dict containing the scraped data.
     """
-    remote_webdriver = 'remote_chromedriver'
+    chrome_options = configure_options(user_agent)
+    
     inner_dict = {}
-    for i, href in enumerate(hrefs):
-        with webdriver.Remote(f'{remote_webdriver}:4444/wd/hub', options=configure_options()) as driver:
+    driver = None  # Initialize the driver variable
+    try:
+        driver = webdriver.Remote(f'{remote_webdriver}:4444/wd/hub', options=chrome_options)
+        
+        for i, href in enumerate(hrefs):
             start = time.time()
-
             try:
-                driver.get(href[0])
+                url = href[0]
+                print(f"This is the --{url}--")
+
+                driver.get(url)
+                time.sleep(3)
                 page_source = driver.page_source
                 soup = BeautifulSoup(page_source, 'html.parser')
 
@@ -86,14 +78,21 @@ def scrape_data_by_adv(hrefs) -> dict:
 
                 stop = time.time()
                 print(f"Iteration {i+1}: {stop - start} seconds")
-                
-                sleep(random.randint(1, 10))
-                
+                sleep(randint(1, 5))
+
             except Exception as e:
                 print(f"Error processing iteration {i+1}: {str(e)}")
                 print(f"Error in href: {href[1]}")
-                continue
-        driver.quit() # Quit the session in the browser
+                # You can choose to handle the error or raise it to the caller
+                # raise
+
+    except Exception as e:
+        print(f"Error occurred outside the loop: {str(e)}")
+
+    finally:
+        if driver is not None:
+            driver.quit()
+
     return inner_dict
 
 def get_hrefs_of_page(soupObj) -> list:
@@ -106,7 +105,7 @@ def get_hrefs_of_page(soupObj) -> list:
         raise ValueError("Error occurred while fetching soupObj. Stopping execution.")
         
     hrefs = get_list_hrefs_per_page(soupObj)
-    shuffled_data = random.sample(hrefs, len(hrefs)) # Shuffle the list data.
+    shuffled_data = sample(hrefs, len(hrefs)) # Shuffle the list data.
     
     return scrape_data_by_adv(shuffled_data)
 
@@ -125,21 +124,22 @@ def scrape_all_data(url, params) -> dict:
     
     outer_dict = {}  # Outer dictionary
     
-    soupObj = request_response(url = url, headers = random_agent(), params = params)
-    outer_dict.update(get_hrefs_of_page(soupObj)) 
-    
+    soupObj = request_response(url = url, headers = headers, params = params)
     num_pages = count_num_pages(soupObj)
+    print(f"The number of pages in the search were: {num_pages}")
+
+    outer_dict.update(get_hrefs_of_page(soupObj)) 
+    sleep(randint(1, 5))
     if num_pages > 1:
         if num_pages > 2:
             for num_page in range(2, num_pages):
-                soupObj = request_response(url, headers = random_agent(), params = params, page = num_page)
+                soupObj = request_response(url, headers = headers, params = params, page = num_page)
                 outer_dict.update(get_hrefs_of_page(soupObj)) 
-                sleep(random.randint(1, 10))
+                sleep(randint(1, 5))
             return outer_dict
         else:
-            soupObj = request_response(url, headers = random_agent(), params = params, page = 2)
+            soupObj = request_response(url, headers = headers, params = params, page = 2)
             outer_dict.update(get_hrefs_of_page(soupObj)) 
-            
             return outer_dict
-            
-    return outer_dict
+    else:        
+        return outer_dict

@@ -26,6 +26,7 @@ x-airflow-common:
     - ./dags:/opt/airflow/dags
     - ./logs:/opt/airflow/logs
     - ./plugins:/opt/airflow/plugins
+    - ./dags/app:/opt/airflow/app
   user: "${AIRFLOW_UID:-50000}:0"
   depends_on:
     &airflow-common-depends-on
@@ -94,7 +95,7 @@ services:
 
   selenium:
     container_name: remote_chromedriver
-    image: selenium/standalone-chrome:114.0.5735.106-chromedriver-114.0.5735.90
+    image: selenium/standalone-chrome:114.0
     ports:
       - 4444:4444
     restart: unless-stopped
