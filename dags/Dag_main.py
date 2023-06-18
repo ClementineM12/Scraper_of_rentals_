@@ -32,7 +32,7 @@ with open("app/params.json", "r") as file:
 DB = "test"
 COLLECTION_HREFS = "hrefs"
 URL = data["url"]
-PARAMS = data["params_faliro"]
+PARAMS = data["params"]
 COLLECTION_ADVS = "rentals"
 MAX_HREFS_PER_DAG = 50
 default_args = {
