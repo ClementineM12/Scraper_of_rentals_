@@ -40,12 +40,12 @@ The rental data scraper and visualization pipeline follows the following steps:
 ## DAG Flows
 
 ### DAG Flow 1: Main
-[Screenshot_2](https://github.com/ClementineM12/Scraper_of_rentals_/assets/106354411/c84f89ab-2fb2-4d5b-a051-7aee4449c12f)
+![Screenshot_2](https://github.com/ClementineM12/Scraper_of_rentals_/assets/106354411/c84f89ab-2fb2-4d5b-a051-7aee4449c12f)
 
 ### DAG Flow 2: Dynamic
-[Screenshot_1](https://github.com/ClementineM12/Scraper_of_rentals_/assets/106354411/fdd54450-48a5-40ee-86a5-518ca6e90c85)
+![Screenshot_1](https://github.com/ClementineM12/Scraper_of_rentals_/assets/106354411/fdd54450-48a5-40ee-86a5-518ca6e90c85)
 
 ## Slack Notifications
 
 Integration with Slack allows real-time notifications and alerts about the pipeline's status. 
-[Screenshot_3](https://github.com/ClementineM12/Scraper_of_rentals_/assets/106354411/44794d68-7e25-480b-8765-9a2c5da40060)
+![Screenshot_3](https://github.com/ClementineM12/Scraper_of_rentals_/assets/106354411/44794d68-7e25-480b-8765-9a2c5da40060)
