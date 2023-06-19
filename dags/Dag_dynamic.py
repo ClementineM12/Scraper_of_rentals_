@@ -16,12 +16,12 @@ COLLECTION_HREFS = "hrefs"
 COLLECTION_ADVS = "rentals"
 
 """
-        1. Checking if the params_file exists: The code is using the os.path.exists() function to check if the params_file (presumably a file path) exists.
+        1. Checking if the schedule_file exists: The code is using the os.path.exists() function to check if the schedule_file (presumably a file path) exists.
 
-        2. Checking if the params_file is not empty: The code then checks if the params_file has a file size greater than 0 using os.path.getsize(). 
+        2. Checking if the schedule_file is not empty: The code then checks if the schedule_file has a file size greater than 0 using os.path.getsize(). 
            This ensures that the file is not empty before proceeding.
 
-        3. Loading schedule from JSON file: If the params_file exists and is not empty, the code opens the schedule.json file and loads its content using json.load(). 
+        3. Loading schedule from JSON file: the code opens the schedule.json file and loads its content using json.load(). 
            The loaded data is stored in the schedule variable.
 
         4. Creating a DAG: The create_dag() function is defined, which takes dag_id, schedule, and default_args as arguments. 
