@@ -50,6 +50,6 @@ The rental data scraper and visualization pipeline follows the following steps:
 Integration with Slack allows real-time notifications and alerts about the pipeline's status. 
 ![Screenshot_3](https://github.com/ClementineM12/Scraper_of_rentals_/assets/106354411/44794d68-7e25-480b-8765-9a2c5da40060)
 
-## Example of a BSON (Binary JSON) document saved in MongoDB
+### Example of a BSON (Binary JSON) document saved in MongoDB
 
 ![Screenshot_4](https://github.com/ClementineM12/Scraper_of_rentals_/assets/106354411/f40187eb-bb2e-4db6-bdbe-d2115e320181)
