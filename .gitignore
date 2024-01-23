@@ -2,3 +2,5 @@ params.json
 /logs
 /data
 /plugins
+/myenv
+**/__pycache__/
